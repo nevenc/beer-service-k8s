@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: beer-service
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: beer-service
+    spec:
+      containers:
+      -  name: beer-service
+         image: nevenc/beer-service-k8s:1.0.0
+         ports:
+         - containerPort: 8080

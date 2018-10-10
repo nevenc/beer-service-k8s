@@ -1,0 +1,117 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beer-service
+  labels:
+    app: beer-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      nodePort: 31000
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: beer-service
+  sessionAffinity: None
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: beer-service
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: beer-service
+    spec:
+      containers:
+      -  name: beer-service
+         image: nevenc/beer-service-k8s:1.0.0
+         ports:
+         - containerPort: 8080
+         env:
+           - name: SPRING_PROFILES_ACTIVE
+             value: mysql
+           - name: SPRING_DATASOURCE_DRIVER-CLASS-NAME
+             value: com.mysql.jdbc.Driver
+           - name: spring.jpa.properties.hibernate.dialect
+             value: org.hibernate.dialect.MySQL55Dialect
+           - name: SPRING_DATASOURCE_USERNAME
+             value: beer_user
+           - name: SPRING_DATASOURCE_PASSWORD
+             value: beer_user_password
+           - name: SPRING_DATASOURCE_URL
+             value: jdbc:mysql://beer-service-database.default.svc.cluster.local:3306/beers
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beer-service-database
+  labels: 
+    app: beer-service
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: beer-service
+    tier: database
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: beer-service-pv-claim
+  labels:
+    app: beer-service
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beer-service-database
+  labels:
+    app: beer-service
+spec:
+  selector:
+    matchLabels:
+      app: beer-service
+      tier: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: beer-service
+        tier: database
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: beers
+        - name: MYSQL_USER
+          value: beer_user
+        # typically we use secrets instead of hardcoding
+        - name: MYSQL_PASSWORD
+          value: beer_user_password
+        - name: MYSQL_ROOT_PASSWORD
+          value: super_user_password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: beer-service-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: beer-service-persistent-storage
+        persistentVolumeClaim:
+          claimName: beer-service-pv-claim
