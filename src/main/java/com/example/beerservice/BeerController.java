@@ -12,13 +12,13 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 
 @RestController
-public class BeerInitializer {
+public class BeerController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BeerInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BeerController.class);
 
     private BeerRepository beerRepository;
 
-    public BeerInitializer(BeerRepository beerRepository) {
+    public BeerController(BeerRepository beerRepository) {
         this.beerRepository = beerRepository;
     }
 
@@ -33,6 +33,11 @@ public class BeerInitializer {
         });
 
         return format("Added %s record(s).", count);
+    }
+
+    @GetMapping
+    public Iterable<Beer> beers() {
+        return beerRepository.findAll();
     }
 
     private Beer getRandomBeer() {

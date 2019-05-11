@@ -12,10 +12,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-public class BeerInitializerTest {
+public class BeerControllerTest {
 
     @Autowired
-    private BeerInitializer beerInitializer;
+    private BeerController beerController;
 
     @Autowired
     private BeerRepository beerRepository;
@@ -24,10 +24,19 @@ public class BeerInitializerTest {
     public void testInitializeDatabase() {
         assertThat(beerRepository.count()).isEqualTo(0L);
 
-        String initMessage = beerInitializer.initializeDatabase(10);
+        String initMessage = beerController.initializeDatabase(10);
 
         assertThat(initMessage).contains("Added 10");
         assertThat(beerRepository.count()).isEqualTo(10L);
+    }
+
+    @Test
+    public void testBeers() {
+        assertThat(beerController.beers().iterator().hasNext()).isEqualTo(false);
+
+        beerRepository.save(new Beer());
+
+        assertThat(beerController.beers().iterator().hasNext()).isEqualTo(true);
     }
 
 }

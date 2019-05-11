@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 @RestController
@@ -18,9 +19,18 @@ public class KillSwitch {
     @GetMapping("/kill")
     public String exitAbruptly() {
         LOG.info("About to kill the application.");
-        System.exit(-1);
 
-        return "Should have killed the application.";
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(100L);
+                System.exit(-1);
+            } catch (InterruptedException e) {
+                //
+            }
+            return null;
+        });
+
+        return "Killed the application.";
     }
 
     @GetMapping("/memory")

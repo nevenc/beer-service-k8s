@@ -18,5 +18,10 @@ public class KillSwitchTest {
     public void testFillMap() {
         assertThat(killSwitch.fillUpMemory(100)).contains("Successfully created 100");
     }
-    
+
+    @Test
+    public void testExitAbruptly() {
+        assertThat(killSwitch.exitAbruptly()).isEqualTo("Killed the application.");
+    }
+
 }
