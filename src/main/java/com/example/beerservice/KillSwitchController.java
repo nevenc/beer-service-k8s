@@ -12,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 @RestController
-public class KillSwitch {
+public class KillSwitchController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KillSwitch.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KillSwitchController.class);
 
     @GetMapping("/kill")
     public String exitAbruptly() {
