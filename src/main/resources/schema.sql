@@ -1,4 +1,4 @@
-create table beer (
+create table if not exists beer (
   id integer identity primary key,
   name varchar(255),
   hop varchar(255),
