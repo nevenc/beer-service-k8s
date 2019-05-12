@@ -3,19 +3,16 @@ package com.example.beerservice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
+import org.springframework.data.annotation.Id;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Beer {
 
     @Id
-    @GeneratedValue
+    @Wither
     private Long id;
     private String name;
     private String hop;

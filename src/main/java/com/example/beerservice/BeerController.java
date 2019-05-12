@@ -7,26 +7,37 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class BeerInitializer {
+import java.util.stream.IntStream;
 
-    private Logger logger = LoggerFactory.getLogger(BeerInitializer.class);
+import static java.lang.String.format;
+
+@RestController
+public class BeerController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BeerController.class);
 
     private BeerRepository beerRepository;
 
-    public BeerInitializer(BeerRepository beerRepository) {
+    public BeerController(BeerRepository beerRepository) {
         this.beerRepository = beerRepository;
     }
 
     @GetMapping("/init")
-    public String inititalizeDatabase(@RequestParam(name = "count", defaultValue = "10") int count) {
-        logger.info("Initializing database with " + count + " record(s).");
-        for (int i = 0; i < count; i++) {
+    public String initializeDatabase(@RequestParam(name = "count", defaultValue = "10") int count) {
+        LOG.info("Initializing database with {} record(s).", count);
+
+        IntStream.range(0, count).forEach(i -> {
             Beer beer = getRandomBeer();
             beerRepository.save(beer);
-            logger.debug("Adding record to database: " + beer);
-        }
-        return "Added " + count + " record(s).";
+            LOG.debug("Adding record to database: {}", beer);
+        });
+
+        return format("Added %s record(s).", count);
+    }
+
+    @GetMapping
+    public Iterable<Beer> beers() {
+        return beerRepository.findAll();
     }
 
     private Beer getRandomBeer() {
